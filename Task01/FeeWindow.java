@@ -8,7 +8,7 @@ class FeeService {
     public String processPayment(String regNo, String amountText) {
 
         if (regNo == null || regNo.trim().isEmpty()) {
-            return "Enter Registration Number";
+            return "Please enter Registration Number!";
         }
 
         double amount;
@@ -16,41 +16,47 @@ class FeeService {
         try {
             amount = Double.parseDouble(amountText);
         } catch (NumberFormatException e) {
-            return "Enter a valid amount";
+            return "Please enter a valid amount!";
         }
 
         if (amount <= 0) {
-            return "Amount must be greater than zero";
+            return "Amount must be greater than zero!";
         }
 
-        // Payment processing logic
         return "Payment Successful!";
     }
 }
 
 public class FeeWindow extends JFrame {
 
-    JTextField regNo = new JTextField(15);
-    JTextField amount = new JTextField(15);
+    JTextField regNo;
+    JTextField amount;
 
-    JButton pay = new JButton("Pay");
-    JButton clear = new JButton("Clear");
-    JButton receipt = new JButton("Receipt");
+    JButton pay, clear, receipt;
 
-    JLabel status = new JLabel("Enter payment details");
+    JLabel status;
 
     FeeService service = new FeeService();
 
     public FeeWindow() {
 
         setTitle("Student Fee Payment");
-        setSize(400, 250);
-        setLayout(new GridLayout(5, 2, 5, 5));
+        setSize(450, 250);
+        setLayout(new GridLayout(5, 2, 10, 10));
+
+        regNo = new JTextField();
+        amount = new JTextField();
+
+        pay = new JButton("Pay");
+        clear = new JButton("Clear");
+        receipt = new JButton("Receipt");
+
+        status = new JLabel("Enter Payment Details");
 
         add(new JLabel("Registration Number:"));
         add(regNo);
 
-        add(new JLabel("Amount:"));
+        add(new JLabel("Payment Amount:"));
         add(amount);
 
         add(pay);
@@ -59,36 +65,57 @@ public class FeeWindow extends JFrame {
         add(receipt);
         add(status);
 
+        // Pay Button
         pay.addActionListener(e -> {
+
             String result = service.processPayment(
                 regNo.getText(),
                 amount.getText()
             );
 
             status.setText(result);
+
             JOptionPane.showMessageDialog(this, result);
         });
 
+        // Clear Button
         clear.addActionListener(e -> {
+
             regNo.setText("");
             amount.setText("");
+
             status.setText("Fields Cleared");
         });
 
+        // Receipt Button
         receipt.addActionListener(e -> {
+
             JOptionPane.showMessageDialog(
                 this,
-                "Registration Number: " + regNo.getText()
-                + "\nAmount: " + amount.getText()
-                + "\nPlease verify payment status."
+                "PAYMENT RECEIPT\n\n" +
+                "Registration Number: " + regNo.getText() +
+                "\nAmount: " + amount.getText()
             );
         });
 
+        // Window Closing
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
         addWindowListener(new WindowAdapter() {
+
+            @Override
             public void windowClosing(WindowEvent e) {
-                dispose();
+
+                int choice = JOptionPane.showConfirmDialog(
+                    FeeWindow.this,
+                    "Are you sure you want to close?",
+                    "Exit",
+                    JOptionPane.YES_NO_OPTION
+                );
+
+                if (choice == JOptionPane.YES_OPTION) {
+                    dispose();
+                }
             }
         });
 
@@ -97,7 +124,10 @@ public class FeeWindow extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new FeeWindow());
+
+        SwingUtilities.invokeLater(() -> {
+            new FeeWindow();
+        });
     }
 }
 
